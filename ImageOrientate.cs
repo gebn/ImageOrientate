@@ -10,15 +10,17 @@ namespace Application
 		public static void Main(string[] args)
 		{
 			//load image to convert
-			Image i = Image.FromFile("path to image.jpg");
+			Image i = Image.FromFile(@"C:\in.jpg");
 
 			//carry out rotation (if necessary)
 			ImageOrientate io = new ImageOrientate();
 			io.Process(i);
 
 			//write out the resulting image
-			FileStream fs = new FileStream("out.jpg", FileMode.Create);
-			i.Save(fs, ImageFormat.Jpeg);
+			using (FileStream fs = new FileStream(@"C:\out.jpg", FileMode.Create))
+			{
+				i.Save(fs, ImageFormat.Jpeg);
+			}
 		}
 	}
 
@@ -67,9 +69,13 @@ namespace Application
 				//otherwise supporting browsers will re-apply any rotation we've just done
 				this.Image.RemovePropertyItem(ORIENTATION_PROPERTY_ID);
 			}
-			catch (InvalidOperationException)
+			catch (FormatException)
 			{
 				//no rotation necessary
+			}
+			catch (InvalidOperationException)
+			{
+				//cannot determine orientation - do nothing
 			}
 		}
 

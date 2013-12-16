@@ -5,24 +5,6 @@ using System.IO;
 
 namespace Application
 {
-	class Tester
-	{
-		public static void Main(string[] args)
-		{
-			//load image to convert
-			Image i = Image.FromFile(@"C:\in.jpg");
-
-			//carry out rotation (if necessary)
-			ImageOrientate io = new ImageOrientate();
-			io.Process(i);
-
-			//write out the resulting image
-			using (FileStream fs = new FileStream(@"C:\out.jpg", FileMode.Create))
-			{
-				i.Save(fs, ImageFormat.Jpeg);
-			}
-		}
-	}
 
 	/// <summary>
 	/// Physically rotates an image based on its orientation EXIF data.

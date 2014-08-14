@@ -14,6 +14,11 @@ namespace ImageOrientate
 	static class ImageOrientate
 	{
 		/// <summary>
+		/// This release's version identifier.
+		/// </summary>
+		public static readonly Version VERSION = new Version(0, 1);
+
+		/// <summary>
 		/// The EXIF property under which orientation data is stored.
 		/// </summary>
 		const int ORIENTATION_PROPERTY_ID = 0x112;

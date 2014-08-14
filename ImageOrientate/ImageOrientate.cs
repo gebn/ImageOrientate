@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.IO;
 
-namespace Application
+namespace ImageOrientate
 {
-
 	/// <summary>
 	/// Physically rotates an image based on its orientation EXIF data.
 	/// </summary>
@@ -13,7 +11,7 @@ namespace Application
 	/// Some browsers pick up this flag (e.g. Chrome), while others don't (e.g. IE).
 	/// This class ensures the same image is ultimately displayed, regardless of browser, by rotating the image properly and removing the orientation flag.
 	/// </remarks>
-	class ImageOrientate
+	static class ImageOrientate
 	{
 		/// <summary>
 		/// The EXIF property under which orientation data is stored.
@@ -21,43 +19,39 @@ namespace Application
 		const int ORIENTATION_PROPERTY_ID = 0x112;
 
 		/// <summary>
-		/// The image being worked on.
-		/// </summary>
-		Image Image { get; set; }
-
-		/// <summary>
-		/// Applies any necessary transformations to an image.
-		/// </summary>
-		/// <param name="image">The image to rotate.</param>
-		public void Process(Image image)
-		{
-			this.Image = image;
-			this.Orientate();
-		}
-
-		/// <summary>
-		/// Rotates the actual image based on its orientation metadata.
+		/// Rotates an image based on its orientation metadata.
 		/// </summary>
 		/// <remarks>
 		/// If the image has no orientation flag, it will be untouched.
 		/// </remarks>
-		void Orientate()
+		/// <param name="image">The image to rotate.</param>
+		/// <returns>Whether the image was altered.</returns>
+		public static bool Process(Image image)
 		{
 			try
 			{
-				//apply the correct transformation
-				this.Image.RotateFlip(GetTransformation(GetOrientation(this.Image)));
+				// apply the correct transformation
+				image.RotateFlip(GetTransformation(GetOrientation(image)));
 
-				//otherwise supporting browsers will re-apply any rotation we've just done
-				this.Image.RemovePropertyItem(ORIENTATION_PROPERTY_ID);
+				// otherwise supporting browsers will re-apply any rotation we've just done
+				image.RemovePropertyItem(ORIENTATION_PROPERTY_ID);
+
+				return true;
+			}
+			catch (ArgumentException)
+			{
+				// RemovePropertyItem() didn't like the image; it may still have been altered
+				return true;
 			}
 			catch (FormatException)
 			{
-				//no rotation necessary
+				// no rotation necessary
+				return false;
 			}
 			catch (InvalidOperationException)
 			{
-				//cannot determine orientation - do nothing
+				// no, or invalid orientation property - do nothing
+				return false;
 			}
 		}
 
@@ -94,16 +88,16 @@ namespace Application
 			}
 			catch (ArgumentException)
 			{
-				//suggests the image is already the correct orientation
+				// suggests the image is already the correct orientation
 				throw new InvalidOperationException("No orientation property set");
 			}
 
-			//the first element represents the orientation
+			// the first element represents the orientation
 			Orientation orientation = (Orientation)prop.Value[0];
 
 			if (!Enum.IsDefined(typeof(Orientation), orientation))
 			{
-				//we could throw FormatException to emphasise the point, but we're not the Orientation property police - treat it as if no flag set
+				// we could throw FormatException to emphasise the point, but we're not the Orientation property police - treat it as if no flag set
 				throw new InvalidOperationException("Invalid orientation property set");
 			}
 

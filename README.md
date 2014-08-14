@@ -10,15 +10,16 @@ This class can be used as part of the uploading process of images in a .NET appl
 
 ```C#
 // load the image to convert
-Image image = Image.FromFile(@"C:\in.jpg");
-
-// carry out rotation (if necessary)
-ImageOrientate orientate = new ImageOrientate();
-orientate.Process(image);
-
-// write out the resulting image
-using (FileStream stream = new FileStream(@"C:\out.jpg", FileMode.Create))
+using (Image image = Image.FromFile(@"C:\in.jpg"))
 {
-	image.Save(stream, ImageFormat.Jpeg);
+	// carry out rotation (if necessary)
+	if (ImageOrientate.Process(image))
+	{
+		// write out the resulting image
+		using (FileStream stream = new FileStream(@"C:\out.jpg", FileMode.Create))
+		{
+			image.Save(stream, ImageFormat.Jpeg);
+		}
+	}
 }
 ```
